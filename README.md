@@ -63,12 +63,13 @@ THEN I am prompted to select an employee to update and their new role and this i
 |Git Username|Git URL|
 |------------|-----------------------|
 |Name: Module 12| Url: GW website| 
-|Name: Ben Gallagher| Url: [Bgallag5](https://github.com/Bgallag5)| 
+|Name: Ben Gallagher| Url: [Bgallag5](https://github.com/Bgallag5)|
+|Name: Spencer Berkebile| Url: [SBerkebile7](https://github.com/SBerkebile7)| 
 |Name: Emily Necciai Mayeski| Url: [EmilyNecciai](https://github.com/EmilyNecciai)|
 |Name: Ani C| Url: [Ani C](#)|
-|Name: Dana Bottoni| Url: [Dana Bottoni](#)|
-|Name: Daniel Carazo| Url: [Daniel Carazo](#)|
-|Name: Shane Crisostomo| Url: [Shane Crisostomo](#)|
+|Name: Dana Bottoni| Url: [dbottoni](https://github.com/dbottoni)|
+|Name: Daniel Carazo| Url: [DMC20 ](https://github.com/DMC20)|
+|Name: Shane Crisostomo| Url: [shaner3423](https://github.com/shaner3423)|
 
 ---
 
