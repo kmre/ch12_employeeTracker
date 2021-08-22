@@ -1,11 +1,9 @@
-//Code colaborators Ani C, Ben Gallagher, Emily Necciai Mayeski, Dana Bottoni, Daniel Carazo, Shane Crisostomo
-//Code sections also taken from https://www.tabnine.com/code/javascript/functions/express/Express/delete
+//Code colaborators Ani C, Spencer , Ben Gallagher, Emily Necciai Mayeski, Dana Bottoni, Daniel Carazo, Shane Crisostomo
 //Code from Module 12 also referenced
 
 const express = require('express');
 const db = require('./db/connection');
 const inquirer = require('inquirer');
-const generateRequest = require('./utils/selections');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -32,7 +30,7 @@ db.connect(err => {
   const start = async () => {
     console.log(`
     ======================
-    SQL Tables
+    Main Menu
     ======================
     `);
     let selection = await inquirer.prompt([
@@ -80,12 +78,17 @@ db.connect(err => {
       break;    
   
       case "Exit":
-      db.end();
+      db.end()
       break;    
     }
   }
 
   function viewDept() {
+    console.log(`
+    ======================
+    DEPARTMENTS
+    ======================
+    `);
       const sql = `SELECT * FROM departments_tb`;
       db.query(sql, (err, rows) => {
         if (err) {
@@ -96,6 +99,11 @@ db.connect(err => {
         });   
   }
   function viewRoles() {
+    console.log(`
+    ======================
+    ROLES
+    ======================
+    `);
     const sql = `SELECT * FROM roles_tb`;
     db.query(sql, (err, rows) => {
       if (err) {
@@ -106,6 +114,11 @@ db.connect(err => {
       });  
   }  
   function viewEmployees() {
+    console.log(`
+    ======================
+    EMPLOYEES
+    ======================
+    `);
     const sql = `SELECT * FROM employees_tb`;
     db.query(sql, (err, rows) => {
       if (err) {
@@ -116,12 +129,15 @@ db.connect(err => {
       }); 
   }
 
-  const getInfo = async () => {
-    let selection = await inquirer.prompt([{
-      type: 'input',
-      name: 'enterName',
-      message: 'Please Enter First Name:',
-      validate: input => {
+  //Add a department
+  async function addDept() {
+    //add inquirer code to get the body information
+    let addDeptInfo = await inquirer.prompt([
+      {
+        type: 'input',
+        message: 'What is the Name of the Department?',
+        name: 'nameDept',
+        validate: input => {
         if (input) {
             return true;
         } else {
@@ -129,33 +145,171 @@ db.connect(err => {
             return false;
         }
         }
-    }]);
-  }
-
-  function addDept() {
-    //add inquirer code to get the body information
-    
-    }
-
-    const sql = `INSERT INTO candidates (first_name, last_name, industry_connected, party_id) VALUES (?,?,?,?)`;
-    const params = [
-      body.first_name,
-      body.last_name,
-      body.industry_connected,
-      body.party_id
-    ];
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
       }
-      res.json({
-        message: 'success',
-        data: body
-      });
-    });
+    ]);
+    const sql = `INSERT INTO departments_tb (department_name) VALUES (?)`;
+    const params = [
+      addDeptInfo.nameDept,
+    ];
+    db.query(sql, params, (err, rows) => {
+        if (err) {
+          throw err;
+        }
+        viewDept();
+    }); 
+}
 
-  
+//add a role
+async function addRole() {
+  //let deptInfo = new Object();
+  let deptArray = [];
+
+  const sqlDpt = `SELECT * FROM departments_tb`;
+      db.query(sqlDpt, (err, rows) => {
+        if (err) {
+          throw err;
+        }
+        rows.forEach(element => {
+          //console.log(element.id)
+          //deptInfo.id = element.id
+          //deptInfo.dept = element.department_name
+          deptArray.push(element.department_name)
+        });
+      }); 
+
+  let addRoleInfo = await inquirer.prompt([
+    {
+      type: 'input',
+      message: 'What is the new Role/Title?',
+      name: 'nameRole',
+      validate: input => {
+      if (input) {
+          return true;
+      } else {
+          console.log('Answer can not be left blank! \n');
+          return false;
+      }
+      }
+    },
+    {
+      type: 'input',
+      message: 'What is the Salary for this Role?',
+      name: 'salaryRole',
+      validate: input => {
+      if (input) {
+          return true;
+      } else {
+          console.log('Answer can not be left blank! \n');
+          return false;
+      }
+      }
+    },
+    {
+      type: 'list',
+      message: 'Chose the Department for this new Role',
+      name: 'deptRole',
+      choices: deptArray
+    }
+  ]);
+
+  //Look up the department ID for the selected department from the array
+  const deptID = await db.promise().query(`SELECT id FROM departments_tb WHERE department_name = ?`, addRoleInfo.deptRole)
+  //console.log(deptID[0][0].id)
+  const sql = `INSERT INTO roles_tb (title, salary, department_id) VALUES (?,?,?)`;
+
+  const params = [
+    addRoleInfo.nameRole,
+    addRoleInfo.salaryRole,
+    deptID[0][0].id,
+  ];
+  db.query(sql, params, (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      viewRoles();
+  }); 
+}
+
+
+//add an employee
+async function addEmployee() {
+  //let deptInfo = new Object();
+  let rolesArray = [];
+
+  const sqlRoles = `SELECT * FROM roles_tb`;
+      db.query(sqlRoles, (err, rows) => {
+        if (err) {
+          throw err;
+        }
+        rows.forEach(element => {
+          //console.log(element.id)
+          //deptInfo.id = element.id
+          //deptInfo.dept = element.department_name
+          rolesArray.push(element.title)
+        });
+      }); 
+
+  let addEmployeeInfo = await inquirer.prompt([
+    {
+      type: 'input',
+      message: "What is the employee's First Name",
+      name: 'firstName',
+      validate: input => {
+      if (input) {
+          return true;
+      } else {
+          console.log('Answer can not be left blank! \n');
+          return false;
+      }
+      }
+    },
+    {
+      type: 'input',
+      message: "What is the employee's Last Name",
+      name: 'lastName',
+      validate: input => {
+      if (input) {
+          return true;
+      } else {
+          console.log('Answer can not be left blank! \n');
+          return false;
+      }
+      }
+    },
+    {
+      type: 'list',
+      message: 'Chose the Role for this new Employee',
+      name: 'roleEmployee',
+      choices: rolesArray
+    },
+    {
+      type: 'input',
+      message: "What is the Manager's ID for this employee",
+      name: 'managerID'
+    },
+  ]);
+
+  //Look up the role ID for the selected role from the array
+  const roleID = await db.promise().query(`SELECT id FROM roles_tb WHERE title = ?`, addEmployeeInfo.roleEmployee)
+  console.log(roleID[0][0].id)
+  const sql = `INSERT INTO employees_tb (first_name, last_name, manager_id, role_id) VALUES (?,?,?,?)`;
+  const params = [
+    addEmployeeInfo.firstName,
+    addEmployeeInfo.lastName,
+    addEmployeeInfo.managerID,
+    roleID[0][0].id,
+  ];
+  db.query(sql, params, (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      viewEmployees();
+  }); 
+}
+
+//Need code for adding managers
+
+
 
 
    

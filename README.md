@@ -25,7 +25,7 @@ To modify/run the application you will need to install npm, express, inquirer, s
 ---
 
 ## Usage
-[Deployed App](https://protected-dawn-58495.herokuapp.com/)
+[Video Demo](https://drive.google.com/file/d/1YDJpXglmQA_vOVVJEL6BLgnuak_22GZW/view)
 
 ---
 
