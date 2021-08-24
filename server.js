@@ -206,7 +206,7 @@ async function addRole() {
     },
     {
       type: 'list',
-      message: 'Chose the Department for this new Role',
+      message: 'Choose the Department for this new Role',
       name: 'deptRole',
       choices: deptArray
     }
@@ -230,7 +230,6 @@ async function addRole() {
   }); 
 }
 
-
 //add an employee
 async function addEmployee() {
   //let deptInfo = new Object();
@@ -243,6 +242,7 @@ async function addEmployee() {
         }
         rows.forEach(element => {
           //console.log(element.id)
+          //console.log(element.salary)
           //deptInfo.id = element.id
           //deptInfo.dept = element.department_name
           rolesArray.push(element.title)
@@ -278,7 +278,7 @@ async function addEmployee() {
     },
     {
       type: 'list',
-      message: 'Chose the Role for this new Employee',
+      message: 'Choose the Role for this new Employee',
       name: 'roleEmployee',
       choices: rolesArray
     },
@@ -305,6 +305,82 @@ async function addEmployee() {
       }
       viewEmployees();
   }); 
+}
+
+//update employee information
+async function updateEmployee() {
+ //let deptInfo = new Object();
+ var employeesArray = [];
+ var roleArray = [];
+
+ const sqlEmployee = `SELECT * FROM employees_tb`;
+      db.query(sqlEmployee, async (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      rows.forEach(element => {
+        //console.log(element.id)
+        //console.log(element.salary)
+        //deptInfo.id = element.id
+        //deptInfo.dept = element.department_name
+        employeesArray.push(element.first_name + " " + element.last_name);
+      });
+      // console.log("1 " + employeesArray)
+
+      const sqlEmployee = `SELECT * FROM roles_tb`;
+      db.query(sqlEmployee, async (err, rows) => {
+        if (err) {
+          throw err;
+        }
+        rows.forEach(element => {
+          //console.log(element.id)
+          //console.log(element.salary)
+          //deptInfo.id = element.id
+          //deptInfo.dept = element.department_name
+          roleArray.push(element.title);
+        });
+        //console.log("1 " + roleArray)
+      })
+      //console.log("2 " + roleArray)
+
+ let updateEmployeeInfo = await inquirer.prompt([
+   {
+     type: 'list',
+     message: 'Choose the Employee to Update',
+     name: 'updateEmployee',
+     choices: employeesArray
+   },
+   {
+     type: 'list',
+     message: "What is the Employee's new Role",
+     name: 'updateRole',
+     choices: roleArray
+   },
+ ]);
+ console.log("name: " + updateEmployeeInfo.updateEmployee)
+ console.log("role: " + updateEmployeeInfo.updateRole)
+ let name = updateEmployeeInfo.updateEmployee.split(" ")
+ //console.log(name[0])
+ //console.log(name[1])
+ 
+ //Look up the role ID for the selected role from the array
+ const employeeID = await db.promise().query(`SELECT id FROM employees_tb WHERE first_name = ? AND last_name = ?`, [name[0], name[1]]);
+ console.log(employeeID[0][0].id)
+ const newRoleID = await db.promise().query(`SELECT id FROM roles_tb WHERE title = ?`, updateEmployeeInfo.updateRole);
+ console.log(newRoleID[0][0].id)
+
+ const sql = `UPDATE employees_tb SET role_id = ? WHERE id = ?`;
+ const params = [
+  newRoleID[0][0].id,
+  employeeID[0][0].id
+ ];
+ db.query(sql, params, (err, rows) => {
+     if (err) {
+       throw err;
+     }
+     viewEmployees();
+ }); 
+ }); 
 }
 
 //Need code for adding managers
